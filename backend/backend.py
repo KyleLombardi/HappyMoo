@@ -12,7 +12,7 @@ def main():
     # data_message = json_to_message("sample.json")
     assistant = make_assistant()
     thread = client.beta.threads.create()
-
+    send_data("sample.json", thread)
     run_prompt(assistant, thread)
     # rp(assistant, thread)
     return 0
@@ -21,6 +21,12 @@ def main():
 #     with open(json, 'r') as file:
 #         data = json.load(file)
     
+def send_data(file_name, thread):
+    with open(file_name, 'r') as file:
+        health_data = json.load(file)
+    for (key, value) in health_data.items():
+        message = f"{key} : {value}"
+        create_message(thread, message)
 
 def run_prompt(assistant, thread):  
     get_line(thread)
@@ -39,13 +45,6 @@ def run_prompt(assistant, thread):
 
     return 0
 
-# def rp(assistant, thread):
-#     get_line(thread)
-#     completion = client.chat.completions.create(
-#         messages= thread.messages
-#         assistant = assistant
-#     )
-#     print(completion.choices[0].message)
 
 # When backend is invoked, do the following:
 

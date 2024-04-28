@@ -1,6 +1,8 @@
 {
     "BMI": 16,
     "Weight": "100 lbs",
-    "Height": "6' 2\""
+    "Height": "6' 2\"",
+    "Average Sleep Time" : "7 hours 16 minutes",
+    "Average Heart Rate" : "84 bpm"
   }
   
