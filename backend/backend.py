@@ -9,18 +9,43 @@ client = OpenAI(organization=organization_id)
 INSTRUCTIONS = "You are a health and wellbeing assistant. Your job is to take in medical data about your patient, figure out the most relevant information to their current issue, and offer thoughtful responses on how to help them."
 
 def main():
-    return 0
-
-def run_prompt():
+    # data_message = json_to_message("sample.json")
     assistant = make_assistant()
     thread = client.beta.threads.create()
-    get_lines(thread)
-    run = client.beta.threads.runs.create_and_poll(
+
+    run_prompt(assistant, thread)
+    # rp(assistant, thread)
+    return 0
+
+# def json_to_message(json):
+#     with open(json, 'r') as file:
+#         data = json.load(file)
+    
+
+def run_prompt(assistant, thread):  
+    get_line(thread)
+    run = client.beta.threads.runs.create(
         thread_id=thread.id,
         assistant_id=assistant.id,
     )
+    while True:
+        run = client.beta.threads.runs.retrieve(thread_id=thread.id, run_id=run.id)
+        if run.status == "completed":
+            messages = client.beta.threads.messages.list(thread_id=thread.id)
+            latest_message = messages.data[0]
+            text = latest_message.content[0].text.value
+            print(text)
+            break
+
     return 0
 
+# def rp(assistant, thread):
+#     get_line(thread)
+#     completion = client.chat.completions.create(
+#         messages= thread.messages
+#         assistant = assistant
+#     )
+#     print(completion.choices[0].message)
 
 # When backend is invoked, do the following:
 
@@ -31,13 +56,11 @@ def run_prompt():
 # Call Run on the thread
 # Update messages.json
 
-def get_lines(thread):
-    input = ""
-    lines = []
-    while input != "exit":
-        input = input()
-        lines.append(input)
-    create_messages(thread, lines)
+def get_line(thread):
+    # read the user inputs from the terminal
+    user_input = input("Enter a line: ")
+    create_message(thread, user_input)
+    return
 
 # Give the AI its role/system and content
 def make_assistant():
@@ -45,17 +68,16 @@ def make_assistant():
         name = "Health Assistant",
         instructions = INSTRUCTIONS,
         model = "gpt-3.5-turbo",
-        tools = [{"type:" "file_search"}] # FIXME: add support to input files like context jsons, medical pdf
+        tools = [{"type": "file_search"}] # FIXME: add support to input files like context jsons, medical pdf
     )
     return assistant
 
-def create_messages(thread, messages: list[str], ):
-    for m in messages:
-        message = client.beta.threads.messages.create(
-            thread_id = thread.id,
-            role="user",
-            content = m   
-        )
+def create_message(thread, message: str):
+    client.beta.threads.messages.create(
+        thread_id = thread.id,
+        role="user",
+        content = message
+    )
     return
 
 
@@ -71,3 +93,5 @@ def create_messages(thread, messages: list[str], ):
 # Store the response in message history JSON
 # Send reponse back to the frontend
 
+if __name__ == "__main__":
+    main()
