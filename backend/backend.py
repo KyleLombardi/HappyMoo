@@ -10,7 +10,7 @@ client = OpenAI(organization=organization_id)
 
 INSTRUCTIONS = "You are a health and wellbeing assistant. Your job is to take in medical data about your patient, figure out the most relevant information to their current issue, and offer thoughtful responses on how to help them."
 APPROVED_TYPES = {".json", ".pdf", ".txt"}
-UPLOAD_DIR = "./data/"
+UPLOAD_DIR = "../data/"
 
 thread = None
 assistant = None
