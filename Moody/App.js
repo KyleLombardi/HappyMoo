@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
-import { initializeHealthKit, getStepCount, getSleepSamples, getBMISamples, getMindfulSessions } from './healthData';
+import { initializeHealthKit, getStepCount, getSleepSamples, getBMISamples, getMindfulSessions, getWorkoutSamples } from './src/components/healthData';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import RNFS from 'react-native-fs';
 
@@ -23,6 +23,7 @@ const App = () => {
   const [sleepData, setSleepData] = useState([]);
   const [bmiData, setBMIData] = useState([]);
   const [mindfulData, setMindfulData] = useState([]);
+  const [workoutData, setWorkoutData] = useState([]);
 
   useEffect(() => {
     initializeHealthKit(setHasPermissions);
@@ -37,6 +38,7 @@ const App = () => {
       getSleepSamples(startDate, endDate, setSleepData);
       getBMISamples(startDate, endDate, setBMIData);
       getMindfulSessions(startDate, endDate, setMindfulData);
+      getWorkoutSamples(startDate, endDate, setWorkoutData);
     }
   }, [hasPermissions]);
 
@@ -50,7 +52,8 @@ const App = () => {
             steps: stepData,
             sleep: sleepData,
             bmi: bmiData,
-            mindfulness: mindfulData
+            mindfulness: mindfulData,
+            workout: workoutData
           });
           await RNFS.writeFile(path, jsonData, 'utf8');
           console.log('Health data saved to', path);
@@ -61,7 +64,7 @@ const App = () => {
     };
 
     storeDataToFile();
-  }, [stepData, sleepData, bmiData, mindfulData]);
+  }, [stepData, sleepData, bmiData, mindfulData, workoutData]);
 
   const fetchDataFromFile = async () => {
     const path = RNFS.DocumentDirectoryPath + '/healthData.json';
@@ -83,17 +86,28 @@ useEffect(() => {
           setSleepData(data.sleep);
           setBMIData(data.bmi);
           setMindfulData(data.mindfulness);
+          setWorkoutData(data.workout);
       }
   });
 }, []);
 
+// set a style for the navigation tabs
+const screenOptions = {
+  activeTintColor: 'black',
+  inactiveTintColor: 'gray',
+  labelStyle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    font: 'HelveticaNeue-CondensedBold'
+  }
+};
   return (
     <NavigationContainer>
-      <Tab.Navigator>
+      <Tab.Navigator screenOptions={screenOptions}>
         <Tab.Screen name="Chat" component={Chat} />
-        <Tab.Screen name="Summary" component={() => <Summary stepData={stepData} sleepData={sleepData} bmiData={bmiData} mindfulData={mindfulData} />} />
+        <Tab.Screen name="Summary" component={() => <Summary stepData={stepData} sleepData={sleepData} bmiData={bmiData} mindfulData={mindfulData} workoutData={workoutData} />} />
         <Tab.Screen name="Browse" component={Browse} />
-      </Tab.Navigator>
+      </Tab.Navigator >
     </NavigationContainer>
   );
 };
@@ -108,25 +122,8 @@ function Chat({ navigation }) {
 
 function Summary({ navigation, stepData, sleepData, bmiData, mindfulData }) {
   return (
-      <ScrollView>
-          <Text>Summary of Health Data</Text>
-          <Text>Steps Data:</Text>
-          {stepData.map((data, index) => (
-              <Text key={index}>Date: {data.date}, Steps: {data.steps}</Text>
-          ))}
-          <Text>Sleep Data:</Text>
-          {sleepData.map((data, index) => (
-              <Text key={index}>Start: {data.startDate}, End: {data.endDate}, Value: {data.value}</Text>
-          ))}
-          <Text>BMI Data:</Text>
-          {bmiData.map((data, index) => (
-              <Text key={index}>Date: {data.date}, BMI: {data.bmi}</Text>
-          ))}
-          <Text>Mindful Data:</Text>
-          {mindfulData.map((data, index) => (
-              <Text key={index}>Start: {data.startDate}, End: {data.endDate}, Value: {data.value}</Text>
-          ))}
-      </ScrollView>
+      <View style={styles.container}>
+      </View>
   );
 }
 
@@ -137,5 +134,13 @@ function Browse({ navigation }) {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    padding: 10,
+  },
+});
 
 export default App;

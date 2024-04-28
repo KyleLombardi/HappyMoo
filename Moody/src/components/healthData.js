@@ -10,7 +10,8 @@ import AppleHealthKit, {
             AppleHealthKit.Constants.Permissions.StepCount,
             AppleHealthKit.Constants.Permissions.SleepAnalysis,
             AppleHealthKit.Constants.Permissions.BodyMassIndex,
-            AppleHealthKit.Constants.Permissions.MindfulSession
+            AppleHealthKit.Constants.Permissions.MindfulSession,
+            AppleHealthKit.Constants.Permissions.Workout
           ],
       write: []
     },
@@ -104,4 +105,30 @@ export const getSleepSamples = (startDate, endDate, setSleepData) => {
       })));
     });
   };
-  
+
+  export const getWorkoutSamples = (startDate, endDate, setWorkoutData) => {
+    const options = {
+        startDate: startDate.toISOString(),
+        endDate: endDate.toISOString(),
+        type: 'workout'
+    };
+
+    AppleHealthKit.getSamples(options, (err, results) => {
+        console.log("Workout fetch attempt:", options);
+        if (err) {
+            console.error("Error fetching workout samples:", err);
+            return;
+        }
+        if (!results) {
+            console.log("No workout data returned");
+            return;
+        }
+        console.log("Workout data received:", results);
+        const formattedData = results.map(sample => ({
+            startDate: sample.startDate,
+            endDate: sample.endDate,
+            value: sample.value
+        }));
+        setWorkoutData(formattedData);
+    });
+};
