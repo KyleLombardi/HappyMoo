@@ -1,0 +1,51 @@
+{
+    "val1" : {
+      "BMI": 16,
+      "Weight": "100 lbs",
+      "Height": "6' 2\"",
+      "Average Sleep Time" : "7 hours 16 minutes",
+      "Average Heart Rate" : "84 bpm",
+      "Timestamp" : "2019-01-01T00:00:00Z"
+    },
+    "val2" : {
+      "BMI": 17,
+      "Weight": "110 lbs",
+      "Height": "6' 3\"",
+      "Average Sleep Time" : "9 hours 16 minutes",
+      "Average Heart Rate" : "94 bpm",
+      "Timestamp" : "2019-01-02T00:00:00Z"
+    },
+    "val3" : {
+      "BMI": 18,
+      "Weight": "120 lbs",
+      "Height": "6' 4\"",
+      "Average Sleep Time" : "8 hours 16 minutes",
+      "Average Heart Rate" : "104 bpm",
+      "Timestamp" : "2019-01-03T00:00:00Z"
+    },
+    "val4" : {
+      "BMI": 19,
+      "Weight": "130 lbs",
+      "Height": "6' 5\"",
+      "Average Sleep Time" : "7 hours 16 minutes",
+      "Average Heart Rate" : "114 bpm",
+      "Timestamp" : "2019-01-04T00:00:00Z"
+    },
+    "val5" : {
+      "BMI": 20,
+      "Weight": "140 lbs",
+      "Height": "6' 6\"",
+      "Average Sleep Time" : "6 hours 16 minutes",
+      "Average Heart Rate" : "124 bpm",
+      "Timestamp" : "2019-01-05T00:00:00Z"
+    },
+    "val6" : {
+      "BMI": 21,
+      "Weight": "150 lbs",
+      "Height": "6' 7\"",
+      "Average Sleep Time" : "5 hours 16 minutes",
+      "Average Heart Rate" : "134 bpm",
+      "Timestamp" : "2019-01-06T00:00:00Z"
+    }
+}
+  
