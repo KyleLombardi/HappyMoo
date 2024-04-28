@@ -15,6 +15,8 @@ import ChatComponent from './src/components/ChatComponent';
 import SummaryComponent from './src/components/SummaryComponent';
 import BrowseComponent from './src/components/BrowseComponent';
 import navigationStyles from './src/styles/navigationStyles'; 
+import Icon from 'react-native-vector-icons/MaterialIcons';
+
 
 import {
   SafeAreaView,
@@ -129,9 +131,38 @@ const screenOptions = {
           tabBarLabelStyle: navigationStyles.labelStyle
         }}
       >
-        <Tab.Screen name="Chat" component={Chat} />
-        <Tab.Screen name="Summary" children={() => <SummaryComponent stepData={stepData} sleepData={sleepData} bmiData={bmiData} mindfulData={mindfulData} workoutData={workoutData} />} />
-        <Tab.Screen name="Browse" component={Browse} />
+      <Tab.Screen
+      name="Chat"
+      component={ChatComponent}
+      options={{
+        tabBarIcon: ({ color, size }) => (
+          <Icon name="chat" color='black' size={size} />
+        ),
+      }}
+      />
+      <Tab.Screen
+      name="Summary"
+      children={() => <SummaryComponent
+                        stepData={stepData}
+                        sleepData={sleepData}
+                        bmiData={bmiData}
+                        mindfulData={mindfulData}
+                        workoutData={workoutData} />}
+      options={{
+        tabBarIcon: ({ color, size }) => (
+          <Icon name="assessment" color='black' size={size} />
+        ),
+      }}
+    />
+      <Tab.Screen
+        name="Browse"
+        component={BrowseComponent}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <Icon name="search" color='black' size={size} />
+          ),
+        }}
+      />
       </Tab.Navigator >
       </View>
     </NavigationContainer>
