@@ -122,7 +122,6 @@ const App = () => {
   };
   return (
     <NavigationContainer>
-      <View style={styles.container}>
       <Tab.Navigator
         screenOptions={{
           tabBarStyle: navigationStyles.tabBarStyle,
@@ -165,7 +164,6 @@ const App = () => {
         }}
       />
       </Tab.Navigator >
-      </View>
     </NavigationContainer>
   );
 };
