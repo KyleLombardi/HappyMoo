@@ -8,33 +8,45 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicator,
 } from 'react-native';
+
+async function fetchReply(msg) {
+  try {
+    const response = await fetch('http://127.0.0.1:8000/chat/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({message: msg}),
+    });
+    const data = await response.json();
+    console.log(data); // You can remove or modify this line based on your logging preferences
+    return data.response; // Assuming the backend sends back a JSON object with a 'reply' field
+  } catch (error) {
+    console.error('Fetch error:', error);
+    return "Sorry, I couldn't fetch the reply."; // Fallback message
+  }
+}
 
 const ChatComponent = () => {
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState('');
+  const [isSending, setIsSending] = useState(false); // To manage the send button and loading state
   const scrollViewRef = useRef();
 
-  const sendMessage = () => {
-    if (inputText.trim()) {
+  const sendMessage = async () => {
+    if (inputText.trim() && !isSending) {
+      setIsSending(true);
       const newMessage = {text: inputText, sender: 'user'};
       setMessages(prevMessages => [...prevMessages, newMessage]);
       setInputText('');
-      triggerReply(newMessage);
+      const replyText = await fetchReply(inputText);
+      const botMessage = {text: replyText, sender: 'bot'};
+      setMessages(prevMessages => [...prevMessages, botMessage]);
+      setIsSending(false);
     }
   };
-
-  const triggerReply = newMessage => {
-    // Simulate a reply after a slight delay
-    setTimeout(() => {
-      const reply = {
-        text: 'Thanks for your message! This is an automatic reply.',
-        sender: 'bot',
-      };
-      setMessages(prevMessages => [...prevMessages, reply]);
-    }, 1000);
-  };
-
   useEffect(() => {
     scrollViewRef.current.scrollToEnd({animated: true});
   }, [messages]);
@@ -58,6 +70,7 @@ const ChatComponent = () => {
             {msg.text}
           </Text>
         ))}
+        {isSending && <ActivityIndicator size="small" color="#0000ff" />}
       </ScrollView>
       <View style={styles.inputContainer}>
         <TextInput
@@ -65,9 +78,12 @@ const ChatComponent = () => {
           value={inputText}
           onChangeText={setInputText}
           placeholder="Type your message here..."
-          onSubmitEditing={sendMessage} // Allows sending by pressing the enter key
+          editable={!isSending} // Disable input when sending
         />
-        <TouchableOpacity style={styles.button} onPress={sendMessage}>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={sendMessage}
+          disabled={isSending}>
           <Text style={styles.buttonText}>Send</Text>
         </TouchableOpacity>
       </View>
