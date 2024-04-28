@@ -44,7 +44,7 @@ const App = () => {
     // Store step data as JSON in a file whenever it changes
     const storeDataToFile = async () => {
       if (stepData.length > 0 || sleepData.length > 0 || bmiData.length > 0 || mindfulData.length > 0) {
-        const path = RNFS.DocumentDirectoryPath + '/stepData.json';
+        const path = RNFS.DocumentDirectoryPath + '/healthData.json';
         try {
           const jsonData = JSON.stringify({
             steps: stepData,
@@ -63,11 +63,35 @@ const App = () => {
     storeDataToFile();
   }, [stepData, sleepData, bmiData, mindfulData]);
 
+  const fetchDataFromFile = async () => {
+    const path = RNFS.DocumentDirectoryPath + '/healthData.json';
+    try {
+        const jsonData = await RNFS.readFile(path, 'utf8');
+        const data = JSON.parse(jsonData);
+        console.log('Read health data from file:', data);
+        return data;
+    } catch (e) {
+        console.error('Failed to read the health data from file:', e);
+        return null;  // return null or appropriate default value if error occurs
+    }
+};
+
+useEffect(() => {
+  fetchDataFromFile().then(data => {
+      if (data) {
+          setStepData(data.steps);
+          setSleepData(data.sleep);
+          setBMIData(data.bmi);
+          setMindfulData(data.mindfulness);
+      }
+  });
+}, []);
+
   return (
     <NavigationContainer>
       <Tab.Navigator>
         <Tab.Screen name="Chat" component={Chat} />
-        <Tab.Screen name="Summary" component={() => <Summary stepData={stepData} />} />
+        <Tab.Screen name="Summary" component={() => <Summary stepData={stepData} sleepData={sleepData} bmiData={bmiData} mindfulData={mindfulData} />} />
         <Tab.Screen name="Browse" component={Browse} />
       </Tab.Navigator>
     </NavigationContainer>
@@ -82,14 +106,27 @@ function Chat({ navigation }) {
   );
 }
 
-function Summary({ navigation, stepData }) {
+function Summary({ navigation, stepData, sleepData, bmiData, mindfulData }) {
   return (
-    <ScrollView>
-      <Text>Summary of Steps</Text>
-      {stepData.map((data, index) => (
-        <Text key={index}>Date: {data.date}, Steps: {data.steps}</Text>
-      ))}
-    </ScrollView>
+      <ScrollView>
+          <Text>Summary of Health Data</Text>
+          <Text>Steps Data:</Text>
+          {stepData.map((data, index) => (
+              <Text key={index}>Date: {data.date}, Steps: {data.steps}</Text>
+          ))}
+          <Text>Sleep Data:</Text>
+          {sleepData.map((data, index) => (
+              <Text key={index}>Start: {data.startDate}, End: {data.endDate}, Value: {data.value}</Text>
+          ))}
+          <Text>BMI Data:</Text>
+          {bmiData.map((data, index) => (
+              <Text key={index}>Date: {data.date}, BMI: {data.bmi}</Text>
+          ))}
+          <Text>Mindful Data:</Text>
+          {mindfulData.map((data, index) => (
+              <Text key={index}>Start: {data.startDate}, End: {data.endDate}, Value: {data.value}</Text>
+          ))}
+      </ScrollView>
   );
 }
 

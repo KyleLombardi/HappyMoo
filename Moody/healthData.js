@@ -44,7 +44,6 @@ export const getStepCount = (startDate, endDate, setStepData) => {
         date: sample.startDate,
         steps: sample.value,
       })));
-      console.log("Step count data over time: ", results);
     });
   };
 
