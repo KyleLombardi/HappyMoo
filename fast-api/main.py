@@ -5,10 +5,11 @@ sys.path.insert(0, os.path.abspath('..'))
 from backend import backend as OpenAIChat
 import model as Model
 
-OpenAIChat.setup_assistant()
-
 # app object
 app = FastAPI()
+
+OpenAIChat.setup_assistant()
+
 
 ## Chat messaging
 @app.post("/chat/")
@@ -18,14 +19,11 @@ async def chat(chat_request: Model.ChatRequest):
 
 def generate_response(message: str) -> str:
     return OpenAIChat.get_response(message)
-    # try:
-    #     openai_response = openai.ChatCompletion.create(
-    #         model="gpt-4",
-    #         messages=[{"role": "user", "content": message}]
-    #     )
-    #     return openai_response.choices[0].message['content']
-
-    # except Exception as e:
-    #     raise HTTPException(status_code=500, detail=str(e))
 
 ## Health data
+@app.post("/import_data/")
+async def import_data(data_request: Model.DataRequest):
+    f = open("../data/{}.json".format(data_request.timestamp), "w")
+    f.write(data_request.data)
+    f.close()
+    OpenAIChat.setup_assistant()
