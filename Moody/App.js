@@ -12,6 +12,9 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import RNFS from 'react-native-fs';
 import ChatComponent from './src/components/ChatComponent';
+import SummaryComponent from './src/components/SummaryComponent';
+import BrowseComponent from './src/components/BrowseComponent';
+import navigationStyles from './src/styles/navigationStyles'; 
 
 import {
   SafeAreaView,
@@ -117,9 +120,17 @@ const screenOptions = {
   return (
     <NavigationContainer>
       <View style={styles.container}>
-      <Tab.Navigator screenOptions={screenOptions}>
+      <Tab.Navigator
+        screenOptions={{
+          tabBarStyle: navigationStyles.tabBarStyle,
+          headerShown: false,
+          tabBarActiveTintColor: 'black',
+          tabBarInactiveTintColor: 'gray',
+          tabBarLabelStyle: navigationStyles.labelStyle
+        }}
+      >
         <Tab.Screen name="Chat" component={Chat} />
-        <Tab.Screen name="Summary" component={() => <Summary stepData={stepData} sleepData={sleepData} bmiData={bmiData} mindfulData={mindfulData} workoutData={workoutData} />} />
+        <Tab.Screen name="Summary" children={() => <SummaryComponent stepData={stepData} sleepData={sleepData} bmiData={bmiData} mindfulData={mindfulData} workoutData={workoutData} />} />
         <Tab.Screen name="Browse" component={Browse} />
       </Tab.Navigator >
       </View>
@@ -138,14 +149,15 @@ function Chat({navigation}) {
 function Summary({ navigation, stepData, sleepData, bmiData, mindfulData }) {
   return (
       <View style={styles.container}>
+        <SummaryComponent stepData={stepData} sleepData={sleepData} bmiData={bmiData} mindfulData={mindfulData} />
       </View>
   );
 }
 
 function Browse({navigation}) {
   return (
-    <View>
-      <Text>Browse</Text>
+    <View style={styles.container}>
+      <BrowseComponent />
     </View>
   );
 }
