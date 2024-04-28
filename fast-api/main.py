@@ -1,7 +1,11 @@
 from fastapi import FastAPI, HTTPException
-
-
+import sys
+import os
+sys.path.insert(0, os.path.abspath('..'))
+from backend import backend as OpenAIChat
 import model as Model
+
+OpenAIChat.setup_assistant()
 
 # app object
 app = FastAPI()
@@ -10,10 +14,10 @@ app = FastAPI()
 @app.post("/chat/")
 async def chat(chat_request: Model.ChatRequest):
     response = generate_response(chat_request.message)
-    return {"response": "testing"}
+    return {"response": response}
 
-def generate_response(message: str):
-    pass
+def generate_response(message: str) -> str:
+    return OpenAIChat.get_response(message)
     # try:
     #     openai_response = openai.ChatCompletion.create(
     #         model="gpt-4",

@@ -8,7 +8,7 @@ async function testFetch() {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        message: 'Hello, how are you?',
+        message: 'I feel like Im getting fat...',
       }),
     });
     const data = await response.json();
