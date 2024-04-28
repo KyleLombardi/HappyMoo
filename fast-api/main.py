@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException
 
+
 import model as Model
 
 # app object
@@ -9,7 +10,7 @@ app = FastAPI()
 @app.post("/chat/")
 async def chat(chat_request: Model.ChatRequest):
     response = generate_response(chat_request.message)
-    return {"response": response}
+    return {"response": "testing"}
 
 def generate_response(message: str):
     pass
