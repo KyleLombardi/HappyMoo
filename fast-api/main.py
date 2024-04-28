@@ -5,10 +5,11 @@ sys.path.insert(0, os.path.abspath('..'))
 from backend import backend as OpenAIChat
 import model as Model
 
-OpenAIChat.setup_assistant()
-
 # app object
 app = FastAPI()
+
+OpenAIChat.setup_assistant()
+
 
 ## Chat messaging
 @app.post("/chat/")
