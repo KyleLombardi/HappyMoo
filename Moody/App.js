@@ -8,7 +8,7 @@ import {
   getBMISamples,
   getMindfulSessions,
   getWorkoutSamples,
-} from './healthData';
+} from './src/components/healthData';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import RNFS from 'react-native-fs';
 import ChatComponent from './src/components/ChatComponent';
@@ -59,7 +59,7 @@ const App = () => {
         bmiData.length > 0 ||
         mindfulData.length > 0
       ) {
-        const path = RNFS.DocumentDirectoryPath + '/stepData.json';
+        const path = RNFS.DocumentDirectoryPath + '/healthData.json';
         try {
           const jsonData = JSON.stringify({
             steps: stepData,
@@ -107,20 +107,22 @@ useEffect(() => {
 // set a style for the navigation tabs
 const screenOptions = {
   activeTintColor: 'black',
-  inactiveTintColor: 'gray',
+  inactiveTintColor: 'grey',
   labelStyle: {
     fontSize: 16,
     fontWeight: 'bold',
-    font: 'HelveticaNeue-CondensedBold'
+    font: 'SF Pro Display'
   }
 };
   return (
     <NavigationContainer>
+      <View style={styles.container}>
       <Tab.Navigator screenOptions={screenOptions}>
         <Tab.Screen name="Chat" component={Chat} />
         <Tab.Screen name="Summary" component={() => <Summary stepData={stepData} sleepData={sleepData} bmiData={bmiData} mindfulData={mindfulData} workoutData={workoutData} />} />
         <Tab.Screen name="Browse" component={Browse} />
       </Tab.Navigator >
+      </View>
     </NavigationContainer>
   );
 };
