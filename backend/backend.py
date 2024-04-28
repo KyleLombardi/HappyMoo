@@ -19,7 +19,9 @@ def setup_assistant():
     global thread, assistant
     assistant = make_assistant()
     thread = client.beta.threads.create()
-    # send_data("sample.json", thread)
+    file_paths = get_files()
+    for file_name in file_paths:
+        send_data(file_name, thread)
 
 def create_vector_store():
     global vector_store
@@ -92,12 +94,13 @@ def get_response(input):
             return text
         
 def make_assistant():
-    create_vector_store()
+    # create_vector_store()
     assistant = client.beta.assistants.create(
         name = "Health Assistant",
         instructions = INSTRUCTIONS,
         model = "gpt-3.5-turbo",
-        tool_resources = {"file_search": {"vector_store_ids": [vector_store.id]}} # FIXME: add support to input files like context jsons, medical pdf
+        tools=[{"type": "file_search"}],
+        # tool_resources = {"file_search": {"vector_store_ids": [vector_store.id]}} 
     )
     return assistant
 
