@@ -1,11 +1,9 @@
-import React from 'react';
-// import type {PropsWithChildren} from 'react';
+import React, { useEffect, useState } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
-import { enableScreens } from 'react-native-screens';
-enableScreens();
-
-const Tab = createBottomTabNavigator();
+import { initializeHealthKit, getStepCount, getSleepSamples, getBMISamples, getMindfulSessions } from './healthData';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import RNFS from 'react-native-fs';
 
 import {
   SafeAreaView,
@@ -17,41 +15,85 @@ import {
   View,
 } from 'react-native';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+const Tab = createBottomTabNavigator();
 
 const App = () => {
+  const [hasPermissions, setHasPermissions] = useState(false);
+  const [stepData, setStepData] = useState([]);
+  const [sleepData, setSleepData] = useState([]);
+  const [bmiData, setBMIData] = useState([]);
+  const [mindfulData, setMindfulData] = useState([]);
+
+  useEffect(() => {
+    initializeHealthKit(setHasPermissions);
+  }, []);
+
+  useEffect(() => {
+    if (hasPermissions) {
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - 30);  // Fetch the last 30 days of data
+      const endDate = new Date();
+      getStepCount(startDate, endDate, setStepData);
+      getSleepSamples(startDate, endDate, setSleepData);
+      getBMISamples(startDate, endDate, setBMIData);
+      getMindfulSessions(startDate, endDate, setMindfulData);
+    }
+  }, [hasPermissions]);
+
+  useEffect(() => {
+    // Store step data as JSON in a file whenever it changes
+    const storeDataToFile = async () => {
+      if (stepData.length > 0 || sleepData.length > 0 || bmiData.length > 0 || mindfulData.length > 0) {
+        const path = RNFS.DocumentDirectoryPath + '/stepData.json';
+        try {
+          const jsonData = JSON.stringify({
+            steps: stepData,
+            sleep: sleepData,
+            bmi: bmiData,
+            mindfulness: mindfulData
+          });
+          await RNFS.writeFile(path, jsonData, 'utf8');
+          console.log('Health data saved to', path);
+        } catch (e) {
+          console.error('Failed to save the health data to file:', e);
+        }
+      }
+    };
+
+    storeDataToFile();
+  }, [stepData, sleepData, bmiData, mindfulData]);
+
   return (
     <NavigationContainer>
       <Tab.Navigator>
         <Tab.Screen name="Chat" component={Chat} />
-        <Tab.Screen name="Summary" component={Summary} />
+        <Tab.Screen name="Summary" component={() => <Summary stepData={stepData} />} />
         <Tab.Screen name="Browse" component={Browse} />
       </Tab.Navigator>
     </NavigationContainer>
   );
 };
 
-function Chat({navigation}) {
+function Chat({ navigation }) {
   return (
     <View>
       <Text>Chat</Text>
     </View>
   );
 }
-function Summary({navigation}) {
+
+function Summary({ navigation, stepData }) {
   return (
-    <View>
-      <Text>Summary</Text>
-    </View>
+    <ScrollView>
+      <Text>Summary of Steps</Text>
+      {stepData.map((data, index) => (
+        <Text key={index}>Date: {data.date}, Steps: {data.steps}</Text>
+      ))}
+    </ScrollView>
   );
 }
-function Browse({navigation}) {
+
+function Browse({ navigation }) {
   return (
     <View>
       <Text>Browse</Text>
