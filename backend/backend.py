@@ -1,6 +1,9 @@
 from openai import OpenAI
 import os
 import json
+import sys
+
+sys.path.insert(0, os.path.abspath('..'))
 
 organization_id = os.environ.get('ORGANIZATION_ID') # FIXME: if this doesnt work set your organization id environment variable
 client = OpenAI(organization=organization_id)
