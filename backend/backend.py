@@ -1,13 +1,16 @@
 from openai import OpenAI
 import os
 import json
+import sys
+
+sys.path.insert(0, os.path.abspath('..'))
 
 organization_id = os.environ.get('ORGANIZATION_ID') # FIXME: if this doesnt work set your organization id environment variable
 client = OpenAI(organization=organization_id)
 
 INSTRUCTIONS = "You are a health and wellbeing assistant. Your job is to take in medical data about your patient, figure out the most relevant information to their current issue, and offer thoughtful responses on how to help them."
 APPROVED_TYPES = {".json", ".pdf", ".txt"}
-UPLOAD_DIR = "./data/"
+UPLOAD_DIR = "../data/"
 
 thread = None
 assistant = None
@@ -16,7 +19,26 @@ def setup_assistant():
     global thread, assistant
     assistant = make_assistant()
     thread = client.beta.threads.create()
-    send_data("sample.json", thread)
+    # send_data("sample.json", thread)
+
+def create_vector_store():
+    vector_store = client.beta.vector_stores.create(name="Health Information")
+    filepaths = get_files()
+
+def get_files():
+    dir = UPLOAD_DIR
+    filepaths_in_dir = []
+    for file in os.listdir(dir):
+        if is_approved_type(file):
+            filepaths_in_dir.append(dir + file)
+    return filepaths_in_dir
+
+def is_approved_type(filename):
+    for type in APPROVED_TYPES:
+        if filename.endswith(type):
+            return True
+    return False
+
 
 
 def send_data(file_name, thread):
