@@ -7,20 +7,37 @@ organization_id = os.environ.get('ORGANIZATION_ID') # FIXME: if this doesnt work
 client = OpenAI(organization=organization_id)
 
 INSTRUCTIONS = "You are a health and wellbeing assistant. Your job is to take in medical data about your patient, figure out the most relevant information to their current issue, and offer thoughtful responses on how to help them."
+APPROVED_TYPES = {".json", ".pdf", ".txt"}
+UPLOAD_DIR = "./data/"
 
 def main():
     # data_message = json_to_message("sample.json")
     assistant = make_assistant()
     thread = client.beta.threads.create()
+    # create_vector_store()
     send_data("sample.json", thread)
     run_prompt(assistant, thread)
-    # rp(assistant, thread)
     return 0
 
-# def json_to_message(json):
-#     with open(json, 'r') as file:
-#         data = json.load(file)
-    
+def create_vector_store():
+    vector_store = client.beta.vector_stores.create(name="Health Information")
+    filepaths = get_files()
+
+
+def get_files():
+    dir = UPLOAD_DIR
+    filepaths_in_dir = []
+    for file in os.listdir(dir):
+        if is_approved_type(file):
+            filepaths_in_dir.append(dir + file)
+    return filepaths_in_dir
+
+def is_approved_type(filename):
+    for type in APPROVED_TYPES:
+        if filename.endswith(type):
+            return True
+    return False
+
 def send_data(file_name, thread):
     with open(file_name, 'r') as file:
         health_data = json.load(file)
@@ -77,8 +94,9 @@ def create_message(thread, message: str):
         role="user",
         content = message
     )
-    return
 
+if __name__ == "__main__":
+    main()
 
 
 # Receive Prompt from User
@@ -91,6 +109,3 @@ def create_message(thread, message: str):
 # Generate a response
 # Store the response in message history JSON
 # Send reponse back to the frontend
-
-if __name__ == "__main__":
-    main()
