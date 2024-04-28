@@ -1,0 +1,21 @@
+Receive Prompt from User
+Receive data from context JSON
+    Read in a context json (all of the medical context from the apple watch)
+        turn it into a dictionary
+        turn the context into a messages() object 
+            assign role and content to each message()
+            parse the data and send it in as content
+Generate a response
+Store the response in message history JSON
+Send reponse back to the frontend
+
+
+
+When backend is invoked, do the following:
+
+Create a thread
+    Feed it messages.json
+    Feed it the Assistant
+
+Call Run on the thread
+Update messages.json
