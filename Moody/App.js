@@ -1,9 +1,16 @@
-import React, { useEffect, useState } from 'react';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { NavigationContainer } from '@react-navigation/native';
-import { initializeHealthKit, getStepCount, getSleepSamples, getBMISamples, getMindfulSessions } from './healthData';
+import React, {useEffect, useState} from 'react';
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import {NavigationContainer} from '@react-navigation/native';
+import {
+  initializeHealthKit,
+  getStepCount,
+  getSleepSamples,
+  getBMISamples,
+  getMindfulSessions,
+} from './healthData';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import RNFS from 'react-native-fs';
+import ChatComponent from './src/components/ChatComponent';
 
 import {
   SafeAreaView,
@@ -31,7 +38,7 @@ const App = () => {
   useEffect(() => {
     if (hasPermissions) {
       const startDate = new Date();
-      startDate.setDate(startDate.getDate() - 30);  // Fetch the last 30 days of data
+      startDate.setDate(startDate.getDate() - 30); // Fetch the last 30 days of data
       const endDate = new Date();
       getStepCount(startDate, endDate, setStepData);
       getSleepSamples(startDate, endDate, setSleepData);
@@ -43,14 +50,19 @@ const App = () => {
   useEffect(() => {
     // Store step data as JSON in a file whenever it changes
     const storeDataToFile = async () => {
-      if (stepData.length > 0 || sleepData.length > 0 || bmiData.length > 0 || mindfulData.length > 0) {
+      if (
+        stepData.length > 0 ||
+        sleepData.length > 0 ||
+        bmiData.length > 0 ||
+        mindfulData.length > 0
+      ) {
         const path = RNFS.DocumentDirectoryPath + '/stepData.json';
         try {
           const jsonData = JSON.stringify({
             steps: stepData,
             sleep: sleepData,
             bmi: bmiData,
-            mindfulness: mindfulData
+            mindfulness: mindfulData,
           });
           await RNFS.writeFile(path, jsonData, 'utf8');
           console.log('Health data saved to', path);
@@ -67,38 +79,51 @@ const App = () => {
     <NavigationContainer>
       <Tab.Navigator>
         <Tab.Screen name="Chat" component={Chat} />
-        <Tab.Screen name="Summary" component={() => <Summary stepData={stepData} />} />
+        <Tab.Screen
+          name="Summary"
+          component={() => <Summary stepData={stepData} />}
+        />
         <Tab.Screen name="Browse" component={Browse} />
       </Tab.Navigator>
     </NavigationContainer>
   );
 };
 
-function Chat({ navigation }) {
+function Chat({navigation}) {
   return (
-    <View>
-      <Text>Chat</Text>
+    <View style={styles.container}>
+      <ChatComponent />
     </View>
   );
 }
 
-function Summary({ navigation, stepData }) {
+function Summary({navigation, stepData}) {
   return (
     <ScrollView>
       <Text>Summary of Steps</Text>
       {stepData.map((data, index) => (
-        <Text key={index}>Date: {data.date}, Steps: {data.steps}</Text>
+        <Text key={index}>
+          Date: {data.date}, Steps: {data.steps}
+        </Text>
       ))}
     </ScrollView>
   );
 }
 
-function Browse({ navigation }) {
+function Browse({navigation}) {
   return (
     <View>
       <Text>Browse</Text>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    padding: 10,
+  },
+});
 
 export default App;

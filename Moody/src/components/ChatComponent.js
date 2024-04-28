@@ -1,62 +1,132 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, TextInput, Button, Alert } from 'react-native';
+import React, {useState, useEffect, useRef} from 'react';
+import {
+  View,
+  TextInput,
+  TouchableOpacity,
+  ScrollView,
+  Text,
+  StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
 
-export default function ChatComponent() {
-  const [message, setMessage] = useState('');
+const ChatComponent = () => {
+  const [messages, setMessages] = useState([]);
+  const [inputText, setInputText] = useState('');
+  const scrollViewRef = useRef();
 
-  const sendMessage = async () => {
-    if (message.trim().length === 0) {
-      Alert.alert('Error', 'Please enter a message before sending.');
-      return;
-    }
-    try {
-      const response = await fetch('http://127.0.0.1:8000/chat/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          message: message
-        }),
-      });
-      const data = await response.json();
-      Alert.alert('Response', data.response);
-      setMessage(''); // Clear the message input after sending
-    } catch (error) {
-      Alert.alert('Error', 'Could not send the message.');
-      console.error(error);
+  const sendMessage = () => {
+    if (inputText.trim()) {
+      const newMessage = {text: inputText, sender: 'user'};
+      setMessages(prevMessages => [...prevMessages, newMessage]);
+      setInputText('');
+      triggerReply(newMessage);
     }
   };
 
+  const triggerReply = newMessage => {
+    // Simulate a reply after a slight delay
+    setTimeout(() => {
+      const reply = {
+        text: 'Thanks for your message! This is an automatic reply.',
+        sender: 'bot',
+      };
+      setMessages(prevMessages => [...prevMessages, reply]);
+    }, 1000);
+  };
+
+  useEffect(() => {
+    scrollViewRef.current.scrollToEnd({animated: true});
+  }, [messages]);
+
   return (
-    <View style={styles.container}>
-      <TextInput
-        style={styles.input}
-        value={message}
-        onChangeText={setMessage}
-        placeholder="Type your message here"
-      />
-      <Button
-        title="Send"
-        onPress={sendMessage}
-      />
-    </View>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      <ScrollView
+        style={styles.messagesContainer}
+        ref={scrollViewRef}
+        onContentSizeChange={() =>
+          scrollViewRef.current.scrollToEnd({animated: true})
+        }>
+        {messages.map((msg, index) => (
+          <Text
+            key={index}
+            style={
+              msg.sender === 'user' ? styles.messageUser : styles.messageBot
+            }>
+            {msg.text}
+          </Text>
+        ))}
+      </ScrollView>
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={styles.input}
+          value={inputText}
+          onChangeText={setInputText}
+          placeholder="Type your message here..."
+          onSubmitEditing={sendMessage} // Allows sending by pressing the enter key
+        />
+        <TouchableOpacity style={styles.button} onPress={sendMessage}>
+          <Text style={styles.buttonText}>Send</Text>
+        </TouchableOpacity>
+      </View>
+    </KeyboardAvoidingView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
+    justifyContent: 'space-between',
   },
-  input: {
-    width: '100%',
-    height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
-    marginBottom: 20,
+  messagesContainer: {
+    flex: 1,
     padding: 10,
   },
+  messageUser: {
+    backgroundColor: '#DCF8C6',
+    padding: 10,
+    borderRadius: 10,
+    marginTop: 4,
+    marginRight: 10,
+    marginLeft: 'auto',
+    maxWidth: '80%',
+  },
+  messageBot: {
+    backgroundColor: '#ffffff',
+    padding: 10,
+    borderRadius: 10,
+    marginTop: 4,
+    marginLeft: 10,
+    marginRight: 'auto',
+    maxWidth: '80%',
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    padding: 10,
+    borderTopWidth: 1,
+    borderColor: 'gray',
+  },
+  input: {
+    flex: 1,
+    marginRight: 10,
+    borderWidth: 1,
+    borderColor: 'gray',
+    padding: 10,
+    borderRadius: 10,
+  },
+  button: {
+    backgroundColor: '#007AFF',
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 5,
+    justifyContent: 'center',
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 16,
+  },
 });
+
+export default ChatComponent;
