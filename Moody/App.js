@@ -1,9 +1,17 @@
-import React, { useEffect, useState } from 'react';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { NavigationContainer } from '@react-navigation/native';
-import { initializeHealthKit, getStepCount, getSleepSamples, getBMISamples, getMindfulSessions, getWorkoutSamples } from './src/components/healthData';
+import React, {useEffect, useState} from 'react';
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import {NavigationContainer} from '@react-navigation/native';
+import {
+  initializeHealthKit,
+  getStepCount,
+  getSleepSamples,
+  getBMISamples,
+  getMindfulSessions,
+  getWorkoutSamples,
+} from './healthData';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import RNFS from 'react-native-fs';
+import ChatComponent from './src/components/ChatComponent';
 
 import {
   SafeAreaView,
@@ -32,7 +40,7 @@ const App = () => {
   useEffect(() => {
     if (hasPermissions) {
       const startDate = new Date();
-      startDate.setDate(startDate.getDate() - 30);  // Fetch the last 30 days of data
+      startDate.setDate(startDate.getDate() - 30); // Fetch the last 30 days of data
       const endDate = new Date();
       getStepCount(startDate, endDate, setStepData);
       getSleepSamples(startDate, endDate, setSleepData);
@@ -45,8 +53,13 @@ const App = () => {
   useEffect(() => {
     // Store step data as JSON in a file whenever it changes
     const storeDataToFile = async () => {
-      if (stepData.length > 0 || sleepData.length > 0 || bmiData.length > 0 || mindfulData.length > 0) {
-        const path = RNFS.DocumentDirectoryPath + '/healthData.json';
+      if (
+        stepData.length > 0 ||
+        sleepData.length > 0 ||
+        bmiData.length > 0 ||
+        mindfulData.length > 0
+      ) {
+        const path = RNFS.DocumentDirectoryPath + '/stepData.json';
         try {
           const jsonData = JSON.stringify({
             steps: stepData,
@@ -112,10 +125,10 @@ const screenOptions = {
   );
 };
 
-function Chat({ navigation }) {
+function Chat({navigation}) {
   return (
-    <View>
-      <Text>Chat</Text>
+    <View style={styles.container}>
+      <ChatComponent />
     </View>
   );
 }
@@ -127,7 +140,7 @@ function Summary({ navigation, stepData, sleepData, bmiData, mindfulData }) {
   );
 }
 
-function Browse({ navigation }) {
+function Browse({navigation}) {
   return (
     <View>
       <Text>Browse</Text>
