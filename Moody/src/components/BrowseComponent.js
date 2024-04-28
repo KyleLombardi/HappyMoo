@@ -1,12 +1,12 @@
 // src/components/BrowseComponent.js
 import React from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Linking } from 'react-native';
+import { ScrollView, View, Text, StyleSheet, FlatList, TouchableOpacity, Linking } from 'react-native';
 
 const blogPosts = [
-    { id: '1', title: '5 Ways to Improve Your Wellness', url: 'https://example.com/post1' },
-    { id: '2', title: 'Understanding Mindfulness and Health', url: 'https://example.com/post2' },
-    { id: '3', title: 'The Benefits of Daily Exercise', url: 'https://example.com/post3' },
-    { id: '4', title: 'Healthy Eating on a Budget', url: 'https://example.com/post4' }
+    { id: '1', title: '5 Ways to Improve Your Wellness', url: 'https://www.meetup.com/blog/five-ways-to-wellbeing/' },
+    { id: '2', title: 'Understanding Mindfulness and Health', url: 'https://mpfi.org/how-does-mindfulness-change-the-brain-a-neurobiologists-perspective-on-mindfulness-meditation/?psafe_param=1' },
+    { id: '3', title: 'The Benefits of Daily Exercise', url: 'https://selfchec.org/healthy-habits/exercise/how-much-exercise/' },
+    { id: '4', title: 'Healthy Eating on a Budget', url: 'https://somethingnutritiousblog.com/eating-healthy-on-a-budget/' }
 ];
 
 const BrowseComponent = () => {
@@ -17,30 +17,52 @@ const BrowseComponent = () => {
     );
 
     return (
-        <FlatList
-            data={blogPosts}
-            renderItem={renderItem}
-            keyExtractor={item => item.id}
-            contentContainerStyle={styles.container}
-        />
+        <ScrollView style={styles.container}>
+            <Text style={styles.header}>Recommendations</Text>
+            <FlatList
+                data={blogPosts}
+                renderItem={renderItem}
+                keyExtractor={item => item.id}
+                contentContainerStyle={styles.listContainer}
+            />
+        </ScrollView>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
+        flex: 1,
         padding: 20,
-        backgroundColor: '#fff'
+        backgroundColor: '#f5f5f5'
+    },
+    header: {
+        fontSize: 30,
+        fontWeight: 'bold',
+        marginBottom: 20,
+        textAlign: 'center',
+        color: '#333',  
     },
     item: {
+        fontSize: 18,
         padding: 20,
         marginVertical: 8,
-        backgroundColor: '#f0f0f0',
-        borderRadius: 5,
+        backgroundColor: '#fff', 
+        borderWidth: 1,  
+        borderColor: '#ddd',  
+        borderRadius: 10, 
+        shadowColor: "#000", 
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,  // Only works on Android for drop shadow
     },
-    title: {
-        fontSize: 18,
-        fontWeight: 'bold',
+    listContainer: {
+        paddingBottom: 20,
     },
 });
+
 
 export default BrowseComponent;

@@ -1,6 +1,7 @@
 // SummaryComponent.js
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 
 async function fetchReply(msg) {
@@ -39,40 +40,60 @@ async function fetchReply(msg) {
     return (
         <ScrollView style={styles.container}>
             <Text style={styles.header}>Health Data Summary</Text>
-            <DataSection title="Steps" data={stepData} reply={stepReply} />
-            <DataSection title="Sleep" data={sleepData} reply={sleepReply} />
-            <DataSection title="BMI" data={bmiData} reply={bmiReply} />
-            <DataSection title="Mindfulness" data={mindfulData} reply={mindfulReply} />
-            <DataSection title="Workout" data={workoutData} reply={workoutReply} />
+            <DataSection title="Steps" data={stepData} iconName="directions-walk" reply={stepReply} />
+            <DataSection title="Sleep" data={sleepData} iconName="nights-stay" reply={sleepReply} />
+            <DataSection title="BMI" data={bmiData} iconName="fitness-center" reply={bmiReply} />
+            <DataSection title="Mindfulness" data={mindfulData} iconName="spa" reply={mindfulReply} />
+            <DataSection title="Workout" data={workoutData} iconName="directions-run" reply={workoutReply} />
         </ScrollView>
     );
 };
 
-const DataSection = ({ title, data, reply }) => {
+const DataSection = ({ title, data, reply, iconName }) => {
     return (
         <View style={styles.section}>
-            <Text style={styles.sectionTitle}>{title}</Text>
+            <View style={styles.titleContainer}>
+                <Icon name={iconName} size={24} color="#666" style={styles.icon} />
+                <Text style={styles.sectionTitle}>{title}</Text>
+            </View>
             <Text style={styles.replyText}>{reply}</Text>
         </View>
     );
 };
 
+
 const styles = StyleSheet.create({
+    titleContainer: {
+        flexDirection: 'row',  // Aligns the icon and text horizontally
+        alignItems: 'center',  // Centers items vertically within the container
+    },
+    icon: {
+        marginRight: 10,  // Adds spacing between the icon and the text
+    },
     container: {
         flex: 1,
         padding: 20,
         backgroundColor: '#f5f5f5'
     },
     header: {
-        fontSize: 24,
+        fontSize: 30,
         fontWeight: 'bold',
-        color: '#333',
-        paddingBottom: 20,
-        borderBottomWidth: 1,
-        borderBottomColor: '#ccc'
+        marginBottom: 20,
+        textAlign: 'center',
+        color: '#333',  
     },
     section: {
-        marginTop: 20,
+        fontSize: 18,
+        padding: 20,
+        marginVertical: 8,
+        backgroundColor: '#fff', // White background
+        borderWidth: 1,
+        borderColor: '#ddd', // Light grey border
+        borderRadius: 10,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
     },
     sectionTitle: {
         fontSize: 22,
