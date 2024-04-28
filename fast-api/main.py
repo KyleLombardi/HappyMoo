@@ -22,7 +22,7 @@ def generate_response(message: str) -> str:
 ## Health data
 @app.post("/import_data/")
 async def import_data(data_request: Model.DataRequest):
-    f = open("data/{}.json".format(data_request.timestamp), "w")
+    f = open("../data/{}.json".format(data_request.timestamp), "w")
     f.write(data_request.data)
     f.close()
     OpenAIChat.setup_assistant()

@@ -14,7 +14,7 @@ import RNFS from 'react-native-fs';
 import ChatComponent from './src/components/ChatComponent';
 import SummaryComponent from './src/components/SummaryComponent';
 import BrowseComponent from './src/components/BrowseComponent';
-import navigationStyles from './src/styles/navigationStyles'; 
+import navigationStyles from './src/styles/navigationStyles';
 
 import {
   SafeAreaView,
@@ -69,7 +69,7 @@ const App = () => {
             sleep: sleepData,
             bmi: bmiData,
             mindfulness: mindfulData,
-            workout: workoutData
+            workout: workoutData,
           });
           await RNFS.writeFile(path, jsonData, 'utf8');
           console.log('Health data saved to', path);
@@ -85,54 +85,65 @@ const App = () => {
   const fetchDataFromFile = async () => {
     const path = RNFS.DocumentDirectoryPath + '/healthData.json';
     try {
-        const jsonData = await RNFS.readFile(path, 'utf8');
-        const data = JSON.parse(jsonData);
-        console.log('Read health data from file:', data);
-        return data;
+      const jsonData = await RNFS.readFile(path, 'utf8');
+      const data = JSON.parse(jsonData);
+      console.log('Read health data from file:', data);
+      postHealthData(data);
+      return data;
     } catch (e) {
-        console.error('Failed to read the health data from file:', e);
-        return null;  // return null or appropriate default value if error occurs
+      console.error('Failed to read the health data from file:', e);
+      return null; // return null or appropriate default value if error occurs
     }
-};
+  };
 
-useEffect(() => {
-  fetchDataFromFile().then(data => {
+  useEffect(() => {
+    fetchDataFromFile().then(data => {
       if (data) {
-          setStepData(data.steps);
-          setSleepData(data.sleep);
-          setBMIData(data.bmi);
-          setMindfulData(data.mindfulness);
-          setWorkoutData(data.workout);
+        setStepData(data.steps);
+        setSleepData(data.sleep);
+        setBMIData(data.bmi);
+        setMindfulData(data.mindfulness);
+        setWorkoutData(data.workout);
       }
-  });
-}, []);
+    });
+  }, []);
 
-// set a style for the navigation tabs
-const screenOptions = {
-  activeTintColor: 'black',
-  inactiveTintColor: 'grey',
-  labelStyle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    font: 'SF Pro Display'
-  }
-};
+  // set a style for the navigation tabs
+  const screenOptions = {
+    activeTintColor: 'black',
+    inactiveTintColor: 'grey',
+    labelStyle: {
+      fontSize: 16,
+      fontWeight: 'bold',
+      font: 'SF Pro Display',
+    },
+  };
   return (
     <NavigationContainer>
       <View style={styles.container}>
-      <Tab.Navigator
-        screenOptions={{
-          tabBarStyle: navigationStyles.tabBarStyle,
-          headerShown: false,
-          tabBarActiveTintColor: 'black',
-          tabBarInactiveTintColor: 'gray',
-          tabBarLabelStyle: navigationStyles.labelStyle
-        }}
-      >
-        <Tab.Screen name="Chat" component={Chat} />
-        <Tab.Screen name="Summary" children={() => <SummaryComponent stepData={stepData} sleepData={sleepData} bmiData={bmiData} mindfulData={mindfulData} workoutData={workoutData} />} />
-        <Tab.Screen name="Browse" component={Browse} />
-      </Tab.Navigator >
+        <Tab.Navigator
+          screenOptions={{
+            tabBarStyle: navigationStyles.tabBarStyle,
+            headerShown: false,
+            tabBarActiveTintColor: 'black',
+            tabBarInactiveTintColor: 'gray',
+            tabBarLabelStyle: navigationStyles.labelStyle,
+          }}>
+          <Tab.Screen name="Chat" component={Chat} />
+          <Tab.Screen
+            name="Summary"
+            children={() => (
+              <SummaryComponent
+                stepData={stepData}
+                sleepData={sleepData}
+                bmiData={bmiData}
+                mindfulData={mindfulData}
+                workoutData={workoutData}
+              />
+            )}
+          />
+          <Tab.Screen name="Browse" component={Browse} />
+        </Tab.Navigator>
       </View>
     </NavigationContainer>
   );
@@ -146,11 +157,16 @@ function Chat({navigation}) {
   );
 }
 
-function Summary({ navigation, stepData, sleepData, bmiData, mindfulData }) {
+function Summary({navigation, stepData, sleepData, bmiData, mindfulData}) {
   return (
-      <View style={styles.container}>
-        <SummaryComponent stepData={stepData} sleepData={sleepData} bmiData={bmiData} mindfulData={mindfulData} />
-      </View>
+    <View style={styles.container}>
+      <SummaryComponent
+        stepData={stepData}
+        sleepData={sleepData}
+        bmiData={bmiData}
+        mindfulData={mindfulData}
+      />
+    </View>
   );
 }
 
@@ -169,5 +185,23 @@ const styles = StyleSheet.create({
     padding: 10,
   },
 });
+
+async function postHealthData(healthData) {
+  try {
+    await fetch('http://127.0.0.1:8000/import_data/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        data: JSON.stringify(healthData),
+        timestamp: new Date(),
+      }),
+    });
+    console.log(healthData);
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+}
 
 export default App;
