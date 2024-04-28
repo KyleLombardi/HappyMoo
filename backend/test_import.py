@@ -2,7 +2,7 @@ import backend as bk
 
 def main():
     bk.setup_assistant()
-    response = bk.get_response("I see a change in my appearances. What could be ausing that?")
+    response = bk.get_response("I feel lethargic and tired. What could be causing that? Name the uploaded files you used to answer")
     print(response)
     return 0
 
