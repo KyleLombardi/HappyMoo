@@ -19,7 +19,26 @@ def setup_assistant():
     global thread, assistant
     assistant = make_assistant()
     thread = client.beta.threads.create()
-    send_data("sample.json", thread)
+    # send_data("sample.json", thread)
+
+def create_vector_store():
+    vector_store = client.beta.vector_stores.create(name="Health Information")
+    filepaths = get_files()
+
+def get_files():
+    dir = UPLOAD_DIR
+    filepaths_in_dir = []
+    for file in os.listdir(dir):
+        if is_approved_type(file):
+            filepaths_in_dir.append(dir + file)
+    return filepaths_in_dir
+
+def is_approved_type(filename):
+    for type in APPROVED_TYPES:
+        if filename.endswith(type):
+            return True
+    return False
+
 
 
 def send_data(file_name, thread):
