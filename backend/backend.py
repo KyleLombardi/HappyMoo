@@ -22,8 +22,23 @@ def setup_assistant():
     # send_data("sample.json", thread)
 
 def create_vector_store():
+    global vector_store
     vector_store = client.beta.vector_stores.create(name="Health Information")
-    filepaths = get_files()
+
+    # Ready the files for upload to OpenAI
+    file_paths = get_files()
+    file_streams = [open(path, "rb") for path in file_paths]
+    print(file_paths)
+
+    # Use the upload and poll SDK helper to upload the files, add them to the vector store,
+    # and poll the status of the file batch for completion.
+    file_batch = client.beta.vector_stores.file_batches.upload_and_poll(
+    vector_store_id=vector_store.id, files=file_streams
+    )
+ 
+    # You can print the status and the file counts of the batch to see the result of this operation. 
+    print(file_batch.status)
+    
 
 def get_files():
     dir = UPLOAD_DIR
@@ -38,7 +53,6 @@ def is_approved_type(filename):
         if filename.endswith(type):
             return True
     return False
-
 
 
 def send_data(file_name, thread):
@@ -61,14 +75,29 @@ def get_response(input):
             messages = client.beta.threads.messages.list(thread_id=thread.id)
             latest_message = messages.data[0]
             text = latest_message.content[0].text.value
+            
+            message_content = latest_message.content[0].text
+            annotations = message_content.annotations
+            citations = []
+            for index, annotation in enumerate(annotations):
+                message_content.value = message_content.value.replace(
+                    annotation.text, f"[{index}]"
+                )
+                if file_citation := getattr(annotation, "file_citation", None):
+                    cited_file = client.files.retrieve(file_citation.file_id)
+                    citations.append(f"[{index}] {cited_file.filename}")
+
+            print("\n".join(citations))
+
             return text
         
 def make_assistant():
+    create_vector_store()
     assistant = client.beta.assistants.create(
         name = "Health Assistant",
         instructions = INSTRUCTIONS,
         model = "gpt-3.5-turbo",
-        tools = [{"type": "file_search"}] # FIXME: add support to input files like context jsons, medical pdf
+        tool_resources = {"file_search": {"vector_store_ids": [vector_store.id]}} # FIXME: add support to input files like context jsons, medical pdf
     )
     return assistant
 
